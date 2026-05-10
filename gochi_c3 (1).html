@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GOCHI — Construction AI Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#8B4513;--primary2:#A0522D;--primary3:#D2691E;
+  --gold:#C8921A;--gold2:#E8A820;
+  --white:#FFFFFF;--off:#F8F8F8;--light:#F2F2F2;
+  --border:#E5E5E5;--border2:#D0D0D0;
+  --ink:#1A1A1A;--ink2:#444444;--ink3:#888888;--ink4:#BBBBBB;
+  --green:#2E7D32;--red:#C62828;--blue:#1565C0;--orange:#E65100;
+  --cream:#FFF8F0;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+  --shadow2:0 8px 32px rgba(0,0,0,.12);
+  --sans:'Inter',sans-serif;--mono:'Fira Code',monospace;
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{cursor:pointer;font-family:var(--sans)}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.on{display:block}
+
+/* ══════════════════
+   NAVBAR
+══════════════════ */
+.nav{
+  position:sticky;top:0;z-index:500;
+  background:var(--white);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 2rem;height:80px;gap:2rem;
+  box-shadow:0 1px 8px rgba(0,0,0,.06);
+}
+.nav-logo{
+  flex-shrink:0;
+  display:flex;align-items:center;
+}
+.nav-logo img{height:64px;width:auto;object-fit:contain;mix-blend-mode:multiply}
+.nav-links{display:flex;align-items:center;gap:0;flex:1}
+.nav-link{
+  font-size:13px;font-weight:500;color:var(--ink2);
+  padding:0 14px;height:64px;display:flex;align-items:center;
+  border-bottom:2px solid transparent;transition:all .15s;
+  border:none;background:transparent;cursor:pointer;
+  white-space:nowrap;
+}
+.nav-link:hover{color:var(--primary)}
+.nav-link.on{color:var(--primary);border-bottom:2px solid var(--primary);font-weight:600}
+.nav-link .arr{font-size:10px;margin-left:3px;opacity:.6}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.nav-lang{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:500;
+  padding:6px 12px;border-radius:6px;
+  border:1px solid var(--border);background:var(--white);
+  color:var(--ink2);cursor:pointer;
+}
+.btn-signin{
+  font-size:13px;font-weight:600;
+  padding:8px 18px;border-radius:6px;
+  border:1px solid var(--border2);background:var(--white);
+  color:var(--ink);transition:all .15s;
+}
+.btn-signin:hover{background:var(--light);border-color:var(--primary)}
+.btn-start{
+  font-size:13px;font-weight:700;
+  padding:9px 20px;border-radius:6px;
+  background:var(--primary);color:var(--white);
+  border:none;transition:all .18s;
+  white-space:nowrap;
+}
+.btn-start:hover{background:var(--primary2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(139,69,19,.3)}
+
+/* LANG DROPDOWN */
+.lang-wrap{position:relative}
+.lang-dd{
+  position:absolute;top:calc(100%+6px);right:0;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:8px;min-width:175px;
+  box-shadow:var(--shadow2);display:none;z-index:600;overflow:hidden;
+}
+.lang-dd.open{display:block}
+.lopt{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 13px;font-size:12px;font-weight:500;
+  color:var(--ink2);cursor:pointer;border-bottom:1px solid var(--light);
+  transition:background .1s;
+}
+.lopt:last-child{border:none}
+.lopt:hover,.lopt.sel{background:var(--cream);color:var(--primary)}
+.lopt .lc{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--ink4)}
+
+/* ══════════════════
+   HERO
+══════════════════ */
+.hero{
+  min-height:560px;
+  background:linear-gradient(135deg,#1a0f08 0%,#2d1a0a 40%,#1a2a3a 100%);
+  display:flex;align-items:center;
+  padding:4rem 2rem;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-inner{max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:600;color:var(--gold2);
+  background:rgba(200,146,26,.12);border:1px solid rgba(200,146,26,.25);
+  padding:5px 13px;border-radius:20px;margin-bottom:1.25rem;
+}
+.hero h1{
+  font-size:clamp(2rem,4vw,3rem);font-weight:800;
+  color:var(--white);line-height:1.15;margin-bottom:1rem;
+}
+.hero h1 em{font-style:normal;color:var(--gold2)}
+.hero-sub{
+  font-size:14px;color:rgba(255,255,255,.7);
+  line-height:1.75;margin-bottom:2rem;max-width:440px;
+}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-hero-primary{
+  font-size:14px;font-weight:700;
+  padding:13px 28px;border-radius:8px;
+  background:var(--primary);color:var(--white);border:none;
+  transition:all .2s;display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(139,69,19,.4);
+}
+.btn-hero-primary:hover{background:var(--primary2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(139,69,19,.5)}
+.btn-hero-secondary{
+  font-size:14px;font-weight:600;
+  padding:13px 24px;border-radius:8px;
+  background:rgba(255,255,255,.08);color:var(--white);
+  border:1px solid rgba(255,255,255,.2);transition:all .2s;
+}
+.btn-hero-secondary:hover{background:rgba(255,255,255,.15)}
+.hero-features{
+  display:flex;gap:20px;flex-wrap:wrap;margin-top:2rem;
+}
+.hf{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:rgba(255,255,255,.6)}
+.hf-icon{color:var(--gold2)}
+
+/* Hero right card */
+.hero-card{
+  background:var(--white);border-radius:16px;padding:1.5rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.hc-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:1rem}
+.hc-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--light);
+  font-size:13px;color:var(--ink2);font-weight:500;
+}
+.hc-item:last-child{border:none}
+.hc-check{color:var(--green);font-size:14px;flex-shrink:0}
+
+/* ══════════════════
+   SECTIONS
+══════════════════ */
+.section{padding:5rem 2rem}
+.section.gray{background:var(--off)}
+.sec-inner{max-width:1100px;margin:0 auto}
+.sec-head{text-align:center;margin-bottom:3rem}
+.sec-head h2{font-size:clamp(1.5rem,3vw,2.25rem);font-weight:800;color:var(--ink);margin-bottom:.625rem}
+.sec-head p{font-size:14px;color:var(--ink3);max-width:500px;margin:0 auto}
+
+/* TOOLS GRID */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.tool-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:1.5rem 1.25rem;
+  cursor:pointer;transition:all .2s;text-align:center;
+}
+.tool-card:hover{border-color:var(--primary);transform:translateY(-3px);box-shadow:var(--shadow2)}
+.tool-card.on{border-color:var(--primary);background:var(--cream);box-shadow:0 4px 18px rgba(139,69,19,.12)}
+.tc-icon{font-size:2rem;margin-bottom:.875rem;display:block}
+.tc-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.tc-desc{font-size:11px;color:var(--ink3);line-height:1.5}
+.tool-card.on .tc-name{color:var(--primary)}
+
+/* HOW IT WORKS */
+.steps-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+.steps-row::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--primary),var(--gold2));z-index:0}
+.step-item{text-align:center;position:relative;z-index:1}
+.step-num{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--white);border:2px solid var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1rem;font-size:1.25rem;font-weight:800;color:var(--primary);
+  box-shadow:var(--shadow);
+}
+.step-icon{font-size:1.5rem;display:block;margin:0 auto .5rem}
+.step-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.step-desc{font-size:10px;color:var(--ink3);line-height:1.5;max-width:120px;margin:0 auto}
+
+/* BENEFITS */
+.benefits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.benefit-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:10px;padding:1.25rem;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.bc-icon{
+  width:40px;height:40px;border-radius:8px;
+  background:var(--cream);display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;flex-shrink:0;
+}
+.bc-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.bc-desc{font-size:11px;color:var(--ink3);line-height:1.5}
+
+/* PRO BANNER */
+.pro-banner{
+  background:linear-gradient(135deg,var(--primary) 0%,#5d2e0c 100%);
+  border-radius:16px;padding:2rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1.5rem;
+  box-shadow:0 8px 32px rgba(139,69,19,.25);
+}
+.pb-left h3{font-size:1.25rem;font-weight:800;color:var(--white);margin-bottom:4px}
+.pb-left p{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6}
+.pb-btn{
+  font-size:14px;font-weight:700;
+  padding:13px 28px;border-radius:8px;
+  background:var(--gold2);color:var(--ink);border:none;
+  transition:all .18s;white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+.pb-btn:hover{background:var(--gold);transform:translateY(-1px)}
+
+/* ══════════════════
+   AUTH PAGES
+══════════════════ */
+.auth-page{
+  min-height:80vh;display:flex;align-items:center;
+  justify-content:center;padding:2rem;
+  background:linear-gradient(135deg,var(--off) 0%,var(--cream) 100%);
+}
+.auth-box{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:460px;box-shadow:var(--shadow2)}
+.auth-logo{height:200px;width:auto;max-width:320px;object-fit:contain;mix-blend-mode:multiply;display:block;margin:0 auto 1.5rem}
+.auth-title{font-size:1.25rem;font-weight:800;color:var(--ink);text-align:center;margin-bottom:.375rem}
+.auth-sub{font-size:13px;color:var(--ink3);text-align:center;margin-bottom:2rem}
+.auth-tabs{display:flex;background:var(--light);border-radius:8px;padding:4px;margin-bottom:1.75rem;gap:4px}
+.auth-tab{
+  flex:1;font-size:13px;font-weight:600;
+  padding:8px;border-radius:6px;border:none;
+  background:transparent;color:var(--ink3);cursor:pointer;
+  transition:all .15s;
+}
+.auth-tab.on{background:var(--white);color:var(--ink);box-shadow:var(--shadow)}
+.f-row{margin-bottom:1rem}
+.f-label{display:block;font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px;letter-spacing:.05em;text-transform:uppercase}
+.f-input{
+  width:100%;background:var(--off);border:1px solid var(--border);
+  border-radius:8px;padding:10px 13px;font-size:14px;
+  color:var(--ink);outline:none;transition:all .15s;
+}
+.f-input:focus{border-color:var(--primary);background:var(--white);box-shadow:0 0 0 3px rgba(139,69,19,.08)}
+.f-input::placeholder{color:var(--ink4)}
+.btn-auth{
+  width:100%;font-size:14px;font-weight:700;
+  padding:12px;border-radius:8px;border:none;
+  background:var(--primary);color:var(--white);
+  transition:all .18s;margin-top:.5rem;
+}
+.btn-auth:hover{background:var(--primary2)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:1rem 0;color:var(--ink4);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{
+  width:100%;font-size:13px;font-weight:600;
+  padding:11px;border-radius:8px;border:1px solid var(--border);
+  background:var(--white);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .15s;
+}
+.btn-google:hover{background:var(--off);border-color:var(--border2)}
+.auth-switch{text-align:center;margin-top:1.25rem;font-size:12px;color:var(--ink3)}
+.auth-switch a{color:var(--primary);font-weight:600;cursor:pointer}
+
+/* ══════════════════
+   DASHBOARD / PROFILE
+══════════════════ */
+.dash-layout{display:flex;min-height:calc(100vh - 64px)}
+.dash-sidebar{
+  width:240px;background:var(--white);border-right:1px solid var(--border);
+  padding:1.5rem 1rem;flex-shrink:0;
+  display:flex;flex-direction:column;gap:4px;
+}
+.ds-section{
+  font-family:var(--mono);font-size:9px;font-weight:600;
+  color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;
+  margin:1rem 0 .375rem;padding:0 .5rem;
+}
+.ds-section:first-child{margin-top:0}
+.ds-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--ink2);
+  cursor:pointer;transition:all .15s;border:none;background:transparent;
+  width:100%;text-align:left;
+}
+.ds-item:hover{background:var(--light);color:var(--ink)}
+.ds-item.on{background:var(--cream);color:var(--primary);font-weight:600}
+.ds-icon{font-size:15px;flex-shrink:0}
+.ds-badge{
+  margin-left:auto;font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:10px;
+  background:var(--primary);color:var(--white);
+}
+
+.dash-content{flex:1;overflow-y:auto;padding:2rem;background:var(--off)}
+.dash-page{display:none}.dash-page.on{display:block}
+.dp-title{font-size:1.25rem;font-weight:800;color:var(--ink);margin-bottom:.375rem}
+.dp-sub{font-size:13px;color:var(--ink3);margin-bottom:2rem}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:2rem}
+.stat-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:1.25rem;
+}
+.sc-val{font-size:1.75rem;font-weight:800;color:var(--primary);line-height:1;margin-bottom:4px}
+.sc-label{font-size:12px;color:var(--ink3);font-weight:500}
+.sc-change{font-size:11px;margin-top:6px;font-weight:600;color:var(--green)}
+
+/* SECTION CARD */
+.sec-card{background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden}
+.sc-head{
+  padding:1rem 1.25rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sc-head-title{font-size:13px;font-weight:700;color:var(--ink)}
+.sc-body{padding:1.25rem}
+
+/* FORM ELEMENTS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+@media(max-width:600px){.fg{grid-template-columns:1fr}}
+.ff{grid-column:1/-1}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase}
+.fi,.fta,.fs{
+  width:100%;background:var(--off);border:1px solid var(--border);
+  border-radius:6px;padding:9px 12px;font-size:13px;
+  color:var(--ink);outline:none;transition:all .15s;
+}
+.fi:focus,.fta:focus,.fs:focus{border-color:var(--primary);background:var(--white);box-shadow:0 0 0 3px rgba(139,69,19,.08)}
+.fta{resize:vertical;min-height:80px;line-height:1.6}
+.fs option{background:var(--white)}
+
+/* PLAN CARDS */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.plan-grid{grid-template-columns:1fr}}
+.plan-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:12px;padding:1.75rem;text-align:center;
+  transition:all .2s;position:relative;
+}
+.plan-card.popular{border-color:var(--primary);box-shadow:0 8px 28px rgba(139,69,19,.15)}
+.plan-badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  font-size:10px;font-weight:800;
+  padding:4px 14px;border-radius:20px;
+  background:var(--primary);color:var(--white);
+  white-space:nowrap;letter-spacing:.05em;
+}
+.plan-name{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:.5rem}
+.plan-price{font-size:2rem;font-weight:800;color:var(--primary);line-height:1;margin-bottom:.25rem}
+.plan-price span{font-size:13px;font-weight:500;color:var(--ink3)}
+.plan-desc{font-size:12px;color:var(--ink3);margin-bottom:1.25rem}
+.plan-features{list-style:none;text-align:left;margin-bottom:1.5rem}
+.plan-features li{
+  font-size:12px;color:var(--ink2);padding:5px 0;
+  border-bottom:1px solid var(--light);
+  display:flex;align-items:center;gap:8px;
+}
+.plan-features li:last-child{border:none}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.btn-plan{
+  width:100%;font-size:13px;font-weight:700;
+  padding:11px;border-radius:8px;border:none;
+  transition:all .18s;
+}
+.btn-plan-outline{background:var(--white);color:var(--primary);border:1.5px solid var(--primary)}
+.btn-plan-outline:hover{background:var(--cream)}
+.btn-plan-fill{background:var(--primary);color:var(--white)}
+.btn-plan-fill:hover{background:var(--primary2)}
+
+/* PROFILE AVATAR */
+.profile-avatar-wrap{
+  display:flex;align-items:center;gap:1.5rem;
+  background:var(--off);border-radius:12px;padding:1.25rem;
+  margin-bottom:1.5rem;
+}
+.avatar-circle{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.75rem;font-weight:800;color:var(--white);
+  flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;
+}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-change{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,.5);color:var(--white);
+  font-size:9px;font-weight:700;text-align:center;
+  padding:4px 0;opacity:0;transition:opacity .15s;
+}
+.avatar-circle:hover .avatar-change{opacity:1}
+.avatar-info h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.avatar-info p{font-size:12px;color:var(--ink3)}
+.avatar-info .plan-chip{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:20px;margin-top:6px;
+  background:var(--cream);color:var(--primary);border:1px solid rgba(139,69,19,.2);
+}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--light)}
+.toggle-row:last-child{border:none}
+.tr-info h4{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.tr-info p{font-size:11px;color:var(--ink3)}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tslider{position:absolute;inset:0;background:var(--border2);border-radius:24px;transition:.3s;cursor:pointer}
+.tslider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:var(--white);border-radius:50%;transition:.3s}
+.toggle input:checked + .tslider{background:var(--primary)}
+.toggle input:checked + .tslider::before{transform:translateX(18px)}
+
+/* BUTTONS */
+.btn{font-size:12px;font-weight:700;padding:9px 20px;border-radius:6px;border:none;cursor:pointer;transition:all .18s}
+.btn-primary{background:var(--primary);color:var(--white)}
+.btn-primary:hover{background:var(--primary2)}
+.btn-secondary{background:var(--light);color:var(--ink2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--off)}
+.btn-danger{background:#ffebee;color:var(--red);border:1px solid #ffcdd2}
+.btn-danger:hover{background:#ffcdd2}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+
+/* TABLE */
+.dtbl{width:100%;border-collapse:collapse;font-size:12px}
+.dtbl th{background:var(--light);padding:8px 12px;text-align:left;font-size:9px;font-weight:700;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.dtbl td{padding:10px 12px;border-bottom:1px solid var(--light);color:var(--ink2)}
+.dtbl tr:hover td{background:var(--cream)}
+.dtbl tr:last-child td{border:none}
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.04em}
+.badge-green{background:#e8f5e9;color:var(--green)}
+.badge-orange{background:#fff3e0;color:var(--orange)}
+.badge-red{background:#ffebee;color:var(--red)}
+.badge-blue{background:#e3f2fd;color:var(--blue)}
+
+/* NOTIFICATION */
+.notif-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--light);
+}
+.notif-item:last-child{border:none}
+.ni-icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;background:var(--cream);
+}
+.ni-text{flex:1;font-size:12px;color:var(--ink2);line-height:1.5}
+.ni-time{font-size:10px;color:var(--ink4);white-space:nowrap;font-family:var(--mono)}
+.ni-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:5px}
+
+/* USER AVATAR NAV */
+.nav-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  color:var(--white);font-size:13px;font-weight:700;
+  cursor:pointer;overflow:hidden;flex-shrink:0;
+}
+.nav-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+  background:var(--ink);color:var(--white);
+  border-radius:8px;padding:11px 18px;font-size:13px;font-weight:500;
+  transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);
+  box-shadow:var(--shadow2);max-width:320px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.2)}
+.modal h3{font-size:1.1rem;font-weight:800;color:var(--ink);margin-bottom:.5rem}
+.modal p{font-size:13px;color:var(--ink3);line-height:1.7;margin-bottom:1.5rem}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+@media(max-width:700px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-card{display:none}
+  .steps-row{grid-template-columns:1fr 1fr}
+  .steps-row::before{display:none}
+  .nav-links{display:none}
+  .plan-grid{grid-template-columns:1fr}
+  .dash-sidebar{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-msg">Are you sure?</p>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-ok" onclick="closeModal()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     NAVBAR
+══════════════════════════ -->
+<nav class="nav">
+  <div class="nav-logo">
+    <img src="data:image/jpeg;base64,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" alt="GOCHI">
+  </div>
+  <div class="nav-links">
+    <button class="nav-link on" onclick="goHome()">Home</button>
+    <button class="nav-link" onclick="goTools()">Tools ▾</button>
+    <button class="nav-link" onclick="goSection('templates')">Templates</button>
+    <button class="nav-link" onclick="goSection('pricing')">Pricing</button>
+    <button class="nav-link" onclick="goSection('how')">Resources ▾</button>
+  </div>
+  <div class="nav-right">
+    <div class="lang-wrap">
+      <button class="lang-btn nav-lang" onclick="toggleLangDD()">
+        🌐 <span id="cur-lang">EN</span> ▾
+      </button>
+      <div class="lang-dd" id="lang-dd">
+        <div class="lopt sel" onclick="setLang('en','EN',event)">🇺🇸 English <span class="lc">EN</span></div>
+        <div class="lopt" onclick="setLang('ur','UR',event)">🇵🇰 اردو <span class="lc">UR</span></div>
+        <div class="lopt" onclick="setLang('ar','AR',event)">🇸🇦 العربية <span class="lc">AR</span></div>
+        <div class="lopt" onclick="setLang('hi','HI',event)">🇮🇳 हिंदी <span class="lc">HI</span></div>
+        <div class="lopt" onclick="setLang('fr','FR',event)">🇫🇷 Français <span class="lc">FR</span></div>
+        <div class="lopt" onclick="setLang('de','DE',event)">🇩🇪 Deutsch <span class="lc">DE</span></div>
+        <div class="lopt" onclick="setLang('es','ES',event)">🇪🇸 Español <span class="lc">ES</span></div>
+        <div class="lopt" onclick="setLang('zh','ZH',event)">🇨🇳 中文 <span class="lc">ZH</span></div>
+        <div class="lopt" onclick="setLang('tr','TR',event)">🇹🇷 Türkçe <span class="lc">TR</span></div>
+        <div class="lopt" onclick="setLang('ru','RU',event)">🇷🇺 Русский <span class="lc">RU</span></div>
+        <div class="lopt" onclick="setLang('pt','PT',event)">🇧🇷 Português <span class="lc">PT</span></div>
+        <div class="lopt" onclick="setLang('id','ID',event)">🇮🇩 Indonesia <span class="lc">ID</span></div>
+      </div>
+    </div>
+    <!-- Logged out -->
+    <div id="nav-loggedout" style="display:flex;align-items:center;gap:8px">
+      <button class="btn-signin" onclick="showAuth('login')">Sign In</button>
+      <button class="btn-start" onclick="showAuth('signup')">Get Started Free →</button>
+    </div>
+    <!-- Logged in -->
+    <div id="nav-loggedin" style="display:none;align-items:center;gap:10px">
+      <button class="btn-secondary btn" onclick="showDash('documents')" style="font-size:12px">📄 My Documents</button>
+      <div class="nav-avatar" id="nav-avatar" onclick="showDash('profile')">
+        <span id="nav-initials">R</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════
+     HOME PAGE
+══════════════════════════ -->
+<div class="panel on" id="panel-home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">⭐ All-in-One Platform for Construction Professionals</div>
+        <h1>Plan. Calculate.<br>Deliver.<br><em>All in One Place.</em></h1>
+        <p class="hero-sub">GOCHI helps engineers, architects, consultants and contractors create, calculate and manage all construction documents, drawings, BOQ, reports and more — in minutes.</p>
+        <div class="hero-btns">
+          <button class="btn-hero-primary" onclick="showAuth('signup')">Get Started Free →</button>
+          <button class="btn-hero-secondary" onclick="goTools()">Explore All Tools</button>
+        </div>
+        <div class="hero-features">
+          <span class="hf"><span class="hf-icon">✦</span> AI Powered</span>
+          <span class="hf"><span class="hf-icon">✓</span> Accurate Results</span>
+          <span class="hf"><span class="hf-icon">⚡</span> Save Time</span>
+          <span class="hf"><span class="hf-icon">☁</span> Cloud Based</span>
+          <span class="hf"><span class="hf-icon">🔒</span> Secure</span>
+        </div>
+      </div>
+      <div>
+        <div class="hero-card">
+          <div class="hc-title">🤖 Your AI Construction Assistant</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Create BOQ</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Generate Drawings</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Log Sheet & Summary</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Planning & Scheduling</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Consultant Comments</div>
+          <div class="hc-item"><span class="hc-check">✓</span> Reports & Schedules</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS SECTION -->
+  <div class="section" id="section-tools">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <h2>Everything You Need for Construction Projects</h2>
+        <p>All disciplines. All documents. One powerful platform.</p>
+      </div>
+      <div class="tools-grid">
+        <div class="tool-card on" onclick="selectTool(this,'boq')">
+          <span class="tc-icon">📋</span>
+          <div class="tc-name">BOQ</div>
+          <div class="tc-desc">Detailed BOQ & Cost Estimation</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'log')">
+          <span class="tc-icon">📊</span>
+          <div class="tc-name">Log Sheet & Summary</div>
+          <div class="tc-desc">Daily Logs, Progress & Summary Sheets</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'planning')">
+          <span class="tc-icon">📅</span>
+          <div class="tc-name">Planning & Scheduling</div>
+          <div class="tc-desc">Project Plans, Bar Charts & Schedules</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'arch')">
+          <span class="tc-icon">🏛️</span>
+          <div class="tc-name">Architectural</div>
+          <div class="tc-desc">Plans, Elevations, Sections & Details</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'struct')">
+          <span class="tc-icon">🏗️</span>
+          <div class="tc-name">Structural</div>
+          <div class="tc-desc">Structural Drawings, Details & Calculations</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'mep')">
+          <span class="tc-icon">⚙️</span>
+          <div class="tc-name">MEP Services</div>
+          <div class="tc-desc">Mechanical, Plumbing, HVAC, Drainage & Water Supply</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'elec')">
+          <span class="tc-icon">⚡</span>
+          <div class="tc-name">Electrical</div>
+          <div class="tc-desc">ELV, Power, Lighting, Load Calculations & Schematics</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'fire')">
+          <span class="tc-icon">🔥</span>
+          <div class="tc-name">Fire & Safety</div>
+          <div class="tc-desc">Firefighting, Fire Alarm, Smoke Control & Safety Plans</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'lowcurrent')">
+          <span class="tc-icon">📡</span>
+          <div class="tc-name">Low Current</div>
+          <div class="tc-desc">BMS, Data, CCTV, Access Control, Intercom & More</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'qto')">
+          <span class="tc-icon">📐</span>
+          <div class="tc-name">DrawingQTO</div>
+          <div class="tc-desc">Auto quantity take-off from drawings</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'report')">
+          <span class="tc-icon">📄</span>
+          <div class="tc-name">Reports</div>
+          <div class="tc-desc">Progress, Inspection & Consultant Reports</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this,'other')">
+          <span class="tc-icon">⋯</span>
+          <div class="tc-name">Other Works</div>
+          <div class="tc-desc">Estimation, Reports, NOCs, Letters & More</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section gray" id="section-how">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <h2>How GOCHI Works</h2>
+        <p>Simple 5-step process to get your construction documents done</p>
+      </div>
+      <div class="steps-row">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <span class="step-icon">📤</span>
+          <div class="step-title">Upload / Input</div>
+          <div class="step-desc">Upload drawings or describe your requirement</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <span class="step-icon">🤖</span>
+          <div class="step-title">AI Process</div>
+          <div class="step-desc">Our AI analyzes and processes your data</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <span class="step-icon">📋</span>
+          <div class="step-title">Generate</div>
+          <div class="step-desc">Drawings, BOQ, sheets, reports & more</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <span class="step-icon">✏️</span>
+          <div class="step-title">Review & Edit</div>
+          <div class="step-desc">Review, edit and customize as per your need</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <span class="step-icon">📥</span>
+          <div class="step-title">Export</div>
+          <div class="step-desc">Export in PDF, Excel, DWG & other formats</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="section">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <h2>Why Choose GOCHI?</h2>
+        <p>Built specifically for construction professionals</p>
+      </div>
+      <div class="benefits-grid">
+        <div class="benefit-card"><div class="bc-icon">⏱️</div><div><div class="bc-title">Save Time</div><div class="bc-desc">Automate repetitive tasks and save valuable time on every project</div></div></div>
+        <div class="benefit-card"><div class="bc-icon">🎯</div><div><div class="bc-title">Increase Accuracy</div><div class="bc-desc">AI powered calculations reduce human errors significantly</div></div></div>
+        <div class="benefit-card"><div class="bc-icon">📦</div><div><div class="bc-title">All in One Place</div><div class="bc-desc">Everything you need in one integrated construction platform</div></div></div>
+        <div class="benefit-card"><div class="bc-icon">🔒</div><div><div class="bc-title">Secure & Reliable</div><div class="bc-desc">Your data is safe with enterprise grade security</div></div></div>
+        <div class="benefit-card"><div class="bc-icon">☁️</div><div><div class="bc-title">Accessible Anywhere</div><div class="bc-desc">Work from anywhere, anytime, on any device</div></div></div>
+        <div class="benefit-card"><div class="bc-icon">💰</div><div><div class="bc-title">Cost Effective</div><div class="bc-desc">Affordable plans for freelancers and large firms alike</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="section gray" id="section-pricing">
+    <div class="sec-inner">
+      <div class="sec-head">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Choose the plan that works best for you</p>
+      </div>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">Free<span>/month</span></div>
+          <div class="plan-desc">Perfect for individuals getting started</div>
+          <ul class="plan-features">
+            <li>5 documents/month</li>
+            <li>BOQ & Log Sheets</li>
+            <li>Basic templates</li>
+            <li>PDF export</li>
+            <li>Email support</li>
+          </ul>
+          <button class="btn-plan btn-plan-outline" onclick="showAuth('signup')">Get Started Free</button>
+        </div>
+        <div class="plan-card popular">
+          <div class="plan-badge">⭐ MOST POPULAR</div>
+          <div class="plan-name">Professional</div>
+          <div class="plan-price">$29<span>/month</span></div>
+          <div class="plan-desc">For active construction professionals</div>
+          <ul class="plan-features">
+            <li>Unlimited documents</li>
+            <li>All tools & disciplines</li>
+            <li>DrawingQTO access</li>
+            <li>PDF, Excel, DWG export</li>
+            <li>Priority support</li>
+            <li>Cloud storage 10GB</li>
+          </ul>
+          <button class="btn-plan btn-plan-fill" onclick="upgradePlan('pro')">Upgrade to Pro →</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-price">$99<span>/month</span></div>
+          <div class="plan-desc">For teams and large organizations</div>
+          <ul class="plan-features">
+            <li>Everything in Pro</li>
+            <li>10 team members</li>
+            <li>Custom templates</li>
+            <li>API access</li>
+            <li>Dedicated support</li>
+            <li>100GB cloud storage</li>
+          </ul>
+          <button class="btn-plan btn-plan-outline" onclick="upgradePlan('enterprise')">Contact Sales</button>
+        </div>
+      </div>
+
+      <!-- PRO BANNER -->
+      <div class="pro-banner" style="margin-top:2rem">
+        <div class="pb-left">
+          <h3>👑 GOCHI Pro</h3>
+          <p>Unlock unlimited projects, advanced AI features and priority support.</p>
+        </div>
+        <button class="pb-btn" onclick="upgradePlan('pro')">👑 Upgrade to Pro →</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end home -->
+
+<!-- ══════════════════════════
+     AUTH PAGE
+══════════════════════════ -->
+<div class="panel" id="panel-auth">
+  <div class="auth-page">
+    <div class="auth-box">
+      <img src="data:image/jpeg;base64,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" alt="GOCHI" class="auth-logo">
+      <div class="auth-title" id="auth-title">Welcome to GOCHI</div>
+      <div class="auth-sub" id="auth-sub">Sign in to your account</div>
+      <div class="auth-tabs">
+        <button class="auth-tab on" id="tab-login" onclick="switchAuth('login')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div id="auth-login">
+        <div class="f-row"><label class="f-label">Email</label><input class="f-input" id="login-email" type="email" placeholder="you@example.com"></div>
+        <div class="f-row"><label class="f-label">Password</label><input class="f-input" id="login-pass" type="password" placeholder="••••••••"></div>
+        <div style="text-align:right;margin:-8px 0 12px"><span style="font-size:12px;color:var(--primary);cursor:pointer;font-weight:600">Forgot password?</span></div>
+        <button class="btn-auth" onclick="doLogin()">Sign In →</button>
+        <div class="auth-divider">or continue with</div>
+        <button class="btn-google" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">Don't have an account? <a onclick="switchAuth('signup')">Sign up free</a></div>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="auth-signup" style="display:none">
+        <div class="f-row"><label class="f-label">Full Name</label><input class="f-input" id="signup-name" placeholder="Enter your full name"></div>
+        <div class="f-row"><label class="f-label">Email</label><input class="f-input" id="signup-email" type="email" placeholder="you@example.com"></div>
+        <div class="f-row"><label class="f-label">Password</label><input class="f-input" id="signup-pass" type="password" placeholder="Min 8 characters"></div>
+        <div class="f-row"><label class="f-label">Company / Firm (Optional)</label><input class="f-input" id="signup-company" placeholder="Your company or firm name"></div>
+        <button class="btn-auth" onclick="doSignup()">Create Account →</button>
+        <div class="auth-divider">or continue with</div>
+        <button class="btn-google" onclick="doGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">Already have an account? <a onclick="switchAuth('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════
+     DASHBOARD
+══════════════════════════ -->
+<div class="panel" id="panel-dash">
+  <div class="dash-layout">
+    <!-- SIDEBAR -->
+    <div class="dash-sidebar">
+      <div class="ds-section">Main</div>
+      <button class="ds-item on" id="dsi-overview" onclick="showDash('overview')"><span class="ds-icon">📊</span> Overview</button>
+      <button class="ds-item" id="dsi-documents" onclick="showDash('documents')"><span class="ds-icon">📄</span> My Documents <span class="ds-badge" id="doc-count-badge">0</span></button>
+      <button class="ds-item" id="dsi-tools" onclick="showDash('tools')"><span class="ds-icon">🔧</span> Tools</button>
+
+      <div class="ds-section">Account</div>
+      <button class="ds-item" id="dsi-profile" onclick="showDash('profile')"><span class="ds-icon">👤</span> Profile</button>
+      <button class="ds-item" id="dsi-upgrade" onclick="showDash('upgrade')"><span class="ds-icon">⭐</span> Upgrade Plan</button>
+      <button class="ds-item" id="dsi-settings" onclick="showDash('settings')"><span class="ds-icon">⚙️</span> Settings</button>
+      <button class="ds-item" id="dsi-notifications" onclick="showDash('notifications')"><span class="ds-icon">🔔</span> Notifications <span class="ds-badge">3</span></button>
+
+      <div class="ds-section">Support</div>
+      <button class="ds-item" onclick="toast('Help center — coming soon!')"><span class="ds-icon">❓</span> Help Center</button>
+      <button class="ds-item" style="color:var(--red)" onclick="doLogout()"><span class="ds-icon">🚪</span> Sign Out</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="dash-content">
+
+      <!-- OVERVIEW -->
+      <div class="dash-page on" id="dp-overview">
+        <div class="dp-title">Welcome back, <span id="user-firstname">User</span>! 👋</div>
+        <div class="dp-sub">Here's your GOCHI construction dashboard</div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="sc-val" id="st-docs">0</div><div class="sc-label">Documents Created</div><div class="sc-change">↑ This month</div></div>
+          <div class="stat-card"><div class="sc-val">Free</div><div class="sc-label">Current Plan</div><div class="sc-change" style="color:var(--primary);cursor:pointer" onclick="showDash('upgrade')">Upgrade →</div></div>
+          <div class="stat-card"><div class="sc-val">12</div><div class="sc-label">Tools Available</div><div class="sc-change">All disciplines</div></div>
+          <div class="stat-card"><div class="sc-val">5</div><div class="sc-label">Exports Left</div><div class="sc-change" style="color:var(--primary);cursor:pointer" onclick="showDash('upgrade')">Get unlimited →</div></div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">⚡ Quick Actions</div></div>
+          <div class="sc-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
+            <button class="tool-card" onclick="goHome();goTools()" style="text-align:center;border:none;cursor:pointer"><span style="font-size:1.5rem;display:block;margin-bottom:6px">📋</span><div style="font-size:12px;font-weight:700">Create BOQ</div></button>
+            <button class="tool-card" onclick="goHome();goTools()" style="text-align:center;border:none;cursor:pointer"><span style="font-size:1.5rem;display:block;margin-bottom:6px">📐</span><div style="font-size:12px;font-weight:700">DrawingQTO</div></button>
+            <button class="tool-card" onclick="goHome();goTools()" style="text-align:center;border:none;cursor:pointer"><span style="font-size:1.5rem;display:block;margin-bottom:6px">📅</span><div style="font-size:12px;font-weight:700">Schedule</div></button>
+            <button class="tool-card" onclick="goHome();goTools()" style="text-align:center;border:none;cursor:pointer"><span style="font-size:1.5rem;display:block;margin-bottom:6px">📊</span><div style="font-size:12px;font-weight:700">Log Sheet</div></button>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">📄 Recent Documents</div><button class="btn btn-secondary" style="font-size:11px;padding:5px 12px" onclick="showDash('documents')">View All</button></div>
+          <div class="sc-body" id="recent-docs-body">
+            <div style="text-align:center;padding:2rem;color:var(--ink3)">
+              <div style="font-size:2rem;margin-bottom:.75rem">📄</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">No documents yet</div>
+              <div style="font-size:11px">Start creating your first construction document!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="dash-page" id="dp-documents">
+        <div class="dp-title">My Documents</div>
+        <div class="dp-sub">All your saved construction documents</div>
+        <div class="sec-card">
+          <div class="sc-head">
+            <div class="sc-head-title">Saved Documents</div>
+            <button class="btn btn-primary" onclick="goHome();goTools()">+ Create New</button>
+          </div>
+          <div class="sc-body" id="docs-list">
+            <div style="text-align:center;padding:2rem;color:var(--ink3)">
+              <div style="font-size:2.5rem;margin-bottom:.75rem">📁</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">No documents saved yet</div>
+              <div style="font-size:11px;margin-bottom:1rem">Create and save your first document</div>
+              <button class="btn btn-primary" onclick="goHome();goTools()">Create Document</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOLS -->
+      <div class="dash-page" id="dp-tools">
+        <div class="dp-title">Construction Tools</div>
+        <div class="dp-sub">All available tools and features</div>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">📋</span><div class="tc-name">BOQ</div><div class="tc-desc">Bill of Quantities</div></div>
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">📊</span><div class="tc-name">Log Sheet</div><div class="tc-desc">Daily site logs</div></div>
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">📅</span><div class="tc-name">Scheduling</div><div class="tc-desc">Project planning</div></div>
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">📐</span><div class="tc-name">DrawingQTO</div><div class="tc-desc">Auto quantity from drawings</div></div>
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">⚙️</span><div class="tc-name">MEP</div><div class="tc-desc">Mechanical, Plumbing, HVAC</div></div>
+          <div class="tool-card" onclick="goHome();goTools()"><span class="tc-icon">⚡</span><div class="tc-name">Electrical</div><div class="tc-desc">Load calculations & schematics</div></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="dash-page" id="dp-profile">
+        <div class="dp-title">My Profile</div>
+        <div class="dp-sub">Manage your personal information</div>
+        <div class="profile-avatar-wrap">
+          <div class="avatar-circle" id="profile-avatar" onclick="changeAvatar()">
+            <span id="profile-initial">R</span>
+            <div class="avatar-change">Change</div>
+          </div>
+          <div class="avatar-info">
+            <h3 id="profile-name-display">Rashid Ahmed</h3>
+            <p id="profile-email-display">user@email.com</p>
+            <span class="plan-chip" id="profile-plan-chip">Free Plan</span>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Personal Information</div></div>
+          <div class="sc-body">
+            <div class="fg">
+              <div><label class="fl">First Name</label><input class="fi" id="pf-fname" placeholder="First name"></div>
+              <div><label class="fl">Last Name</label><input class="fi" id="pf-lname" placeholder="Ahmed"></div>
+              <div><label class="fl">Email Address</label><input class="fi" id="pf-email" type="email" placeholder="you@example.com"></div>
+              <div><label class="fl">Phone Number</label><input class="fi" id="pf-phone" placeholder="+92 300 1234567"></div>
+              <div><label class="fl">Company / Firm</label><input class="fi" id="pf-company" placeholder="Company / Firm name"></div>
+              <div><label class="fl">Job Title</label><input class="fi" id="pf-job" placeholder="Senior Engineer"></div>
+              <div class="ff"><label class="fl">City / Country</label><input class="fi" id="pf-city" placeholder="Karachi, Pakistan"></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+              <button class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Change Password</div></div>
+          <div class="sc-body">
+            <div style="max-width:380px">
+              <div class="f-row"><label class="fl">Current Password</label><input class="fi" type="password" id="cp-cur" placeholder="Enter current password"></div>
+              <div class="f-row"><label class="fl">New Password</label><input class="fi" type="password" id="cp-new" placeholder="Min 8 characters"></div>
+              <div class="f-row"><label class="fl">Confirm New Password</label><input class="fi" type="password" id="cp-con" placeholder="Repeat new password"></div>
+              <button class="btn btn-primary" onclick="changePassword()">🔒 Update Password</button>
+            </div>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title" style="color:var(--red)">Danger Zone</div></div>
+          <div class="sc-body">
+            <p style="font-size:12px;color:var(--ink3);margin-bottom:1rem">These actions are permanent and cannot be undone.</p>
+            <div class="btn-row">
+              <button class="btn btn-danger" onclick="confirmAction('Delete all documents?','This will permanently delete all your documents.','deleteAllDocs')">🗑️ Delete All Documents</button>
+              <button class="btn btn-danger" onclick="confirmAction('Delete account?','This will permanently delete your account and all data.','deleteAccount')">❌ Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPGRADE -->
+      <div class="dash-page" id="dp-upgrade">
+        <div class="dp-title">Upgrade Your Plan</div>
+        <div class="dp-sub">Unlock more features and remove limits</div>
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price">Free<span>/month</span></div>
+            <div class="plan-desc">Your current plan</div>
+            <ul class="plan-features">
+              <li>5 documents/month</li>
+              <li>BOQ & Log Sheets</li>
+              <li>Basic templates</li>
+              <li>PDF export</li>
+            </ul>
+            <button class="btn-plan btn-plan-outline" disabled style="opacity:.5;cursor:not-allowed">Current Plan</button>
+          </div>
+          <div class="plan-card popular">
+            <div class="plan-badge">⭐ RECOMMENDED</div>
+            <div class="plan-name">Professional</div>
+            <div class="plan-price">$29<span>/month</span></div>
+            <div class="plan-desc">Best for active professionals</div>
+            <ul class="plan-features">
+              <li>Unlimited documents</li>
+              <li>All tools & disciplines</li>
+              <li>DrawingQTO access</li>
+              <li>PDF, Excel, DWG export</li>
+              <li>Priority support</li>
+              <li>10GB cloud storage</li>
+            </ul>
+            <button class="btn-plan btn-plan-fill" onclick="upgradePlan('pro')">👑 Upgrade Now →</button>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Enterprise</div>
+            <div class="plan-price">$99<span>/month</span></div>
+            <div class="plan-desc">For teams & organizations</div>
+            <ul class="plan-features">
+              <li>Everything in Pro</li>
+              <li>10 team members</li>
+              <li>Custom templates</li>
+              <li>API access</li>
+              <li>100GB storage</li>
+            </ul>
+            <button class="btn-plan btn-plan-outline" onclick="toast('Contact: gochi@email.com')">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="dash-page" id="dp-settings">
+        <div class="dp-title">Settings</div>
+        <div class="dp-sub">Customize your GOCHI experience</div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Notifications</div></div>
+          <div class="sc-body">
+            <div class="toggle-row"><div class="tr-info"><h4>Email Notifications</h4><p>Receive updates about your documents</p></div><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="toggle-row"><div class="tr-info"><h4>Document Ready Alerts</h4><p>Get notified when AI processing is complete</p></div><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="toggle-row"><div class="tr-info"><h4>Marketing Emails</h4><p>Tips, new features and offers</p></div><label class="toggle"><input type="checkbox"><span class="tslider"></span></label></div>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Preferences</div></div>
+          <div class="sc-body">
+            <div class="fg">
+              <div><label class="fl">Default Language</label>
+                <select class="fs" id="pref-lang">
+                  <option>English</option><option>اردو</option><option>العربية</option>
+                  <option>हिंदी</option><option>Français</option><option>Deutsch</option>
+                </select>
+              </div>
+              <div><label class="fl">Default Export Format</label>
+                <select class="fs">
+                  <option>PDF</option><option>Excel (CSV)</option><option>Word (DOCX)</option><option>DWG</option>
+                </select>
+              </div>
+              <div><label class="fl">Currency</label>
+                <select class="fs">
+                  <option>USD ($)</option><option>PKR (₨)</option><option>AED (د.إ)</option><option>SAR (﷼)</option><option>EUR (€)</option>
+                </select>
+              </div>
+              <div><label class="fl">Measurement Unit</label>
+                <select class="fs"><option>Metric (m, kg)</option><option>Imperial (ft, lb)</option></select>
+              </div>
+            </div>
+            <div class="btn-row"><button class="btn btn-primary" onclick="saveSettings()">💾 Save Preferences</button></div>
+          </div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Privacy & Security</div></div>
+          <div class="sc-body">
+            <div class="toggle-row"><div class="tr-info"><h4>Two-Factor Authentication</h4><p>Add extra security to your account</p></div><label class="toggle"><input type="checkbox"><span class="tslider"></span></label></div>
+            <div class="toggle-row"><div class="tr-info"><h4>Public Profile</h4><p>Allow others to see your profile</p></div><label class="toggle"><input type="checkbox"><span class="tslider"></span></label></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="dash-page" id="dp-notifications">
+        <div class="dp-title">Notifications</div>
+        <div class="dp-sub">Your recent activity and alerts</div>
+        <div class="sec-card">
+          <div class="sc-head"><div class="sc-head-title">Recent Notifications</div><button class="btn btn-secondary" style="font-size:11px;padding:5px 12px" onclick="toast('All marked as read!')">Mark all read</button></div>
+          <div class="sc-body">
+            <div class="notif-item"><div class="ni-icon">🚀</div><div class="ni-text"><strong>Welcome to GOCHI!</strong><br>Your account has been created successfully.</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="ni-time">Just now</div><div class="ni-dot"></div></div></div>
+            <div class="notif-item"><div class="ni-icon">⭐</div><div class="ni-text"><strong>Upgrade Available</strong><br>Unlock unlimited documents with GOCHI Pro.</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="ni-time">1 hour ago</div><div class="ni-dot"></div></div></div>
+            <div class="notif-item"><div class="ni-icon">📋</div><div class="ni-text"><strong>New Feature: DrawingQTO</strong><br>Now extract quantities directly from drawings!</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="ni-time">Today</div><div class="ni-dot"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end dash content -->
+  </div><!-- end dash layout -->
+</div><!-- end dashboard -->
+
+<script>
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let currentUser = null;
+let userDocs = [];
+let curLang = 'en';
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function goHome(){
+  showPanel('home');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('on'));
+  document.querySelectorAll('.nav-link')[0].classList.add('on');
+}
+function goTools(){
+  showPanel('home');
+  setTimeout(()=>document.getElementById('section-tools').scrollIntoView({behavior:'smooth'}),100);
+}
+function goSection(id){
+  showPanel('home');
+  setTimeout(()=>{const el=document.getElementById('section-'+id);if(el)el.scrollIntoView({behavior:'smooth'});},100);
+}
+
+/* ═══════════════════════════════
+   AUTH
+═══════════════════════════════ */
+function showAuth(tab){
+  showPanel('auth');
+  switchAuth(tab);
+}
+function switchAuth(tab){
+  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-signup').style.display = tab==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('on', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('on', tab==='signup');
+  document.getElementById('auth-title').textContent = tab==='login'?'Welcome Back':'Create Account';
+  document.getElementById('auth-sub').textContent = tab==='login'?'Sign in to your account':'Join thousands of construction professionals';
+}
+
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  if(!email||!pass){toast('⚠ Please fill all fields!');return;}
+  // Simulate login
+  loginUser({name:'Rashid Ahmed', email:email, plan:'free'});
+}
+
+function doSignup(){
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value.trim();
+  if(!name||!email||!pass){toast('⚠ Please fill all fields!');return;}
+  if(pass.length<8){toast('⚠ Password must be at least 8 characters!');return;}
+  loginUser({name:name, email:email, plan:'free'});
+  toast('✓ Account created! Welcome to GOCHI!');
+}
+
+function doGoogleLogin(){
+  toast('🔄 Connecting to Google... (Add Firebase config to enable)');
+  setTimeout(()=>loginUser({name:'Google User', email:'user@gmail.com', plan:'free'}),1500);
+}
+
+function loginUser(user){
+  currentUser = user;
+  // Update UI
+  const fname = user.name.split(' ')[0];
+  const initials = user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  
+  document.getElementById('nav-loggedout').style.display='none';
+  document.getElementById('nav-loggedin').style.display='flex';
+  document.getElementById('nav-initials').textContent = initials;
+  document.getElementById('user-firstname').textContent = fname;
+  document.getElementById('profile-initial').textContent = initials;
+  document.getElementById('profile-name-display').textContent = user.name;
+  document.getElementById('profile-email-display').textContent = user.email;
+  
+  // Fill profile form
+  const parts = user.name.split(' ');
+  document.getElementById('pf-fname').value = parts[0]||'';
+  document.getElementById('pf-lname').value = parts.slice(1).join(' ')||'';
+  document.getElementById('pf-email').value = user.email;
+  
+  toast('✓ Welcome, '+fname+'!');
+  showDash('overview');
+}
+
+function doLogout(){
+  currentUser = null;
+  document.getElementById('nav-loggedout').style.display='flex';
+  document.getElementById('nav-loggedin').style.display='none';
+  toast('✓ Signed out successfully!');
+  goHome();
+}
+
+/* ═══════════════════════════════
+   DASHBOARD
+═══════════════════════════════ */
+function showDash(page){
+  showPanel('dash');
+  document.querySelectorAll('.dash-page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ds-item').forEach(i=>i.classList.remove('on'));
+  const dp = document.getElementById('dp-'+page);
+  if(dp) dp.classList.add('on');
+  const dsi = document.getElementById('dsi-'+page);
+  if(dsi) dsi.classList.add('on');
+}
+
+/* ═══════════════════════════════
+   PROFILE ACTIONS
+═══════════════════════════════ */
+function saveProfile(){
+  const fname = document.getElementById('pf-fname').value.trim();
+  const lname = document.getElementById('pf-lname').value.trim();
+  const fullName = (fname+' '+lname).trim();
+  if(fullName){
+    document.getElementById('profile-name-display').textContent = fullName;
+    const initials = (fname[0]||'')+(lname[0]||'');
+    document.getElementById('profile-initial').textContent = initials.toUpperCase();
+    document.getElementById('nav-initials').textContent = initials.toUpperCase();
+  }
+  if(currentUser) currentUser.name = fullName;
+  toast('✓ Profile updated successfully!');
+}
+
+function changePassword(){
+  const cur = document.getElementById('cp-cur').value;
+  const nw = document.getElementById('cp-new').value;
+  const cn = document.getElementById('cp-con').value;
+  if(!cur||!nw||!cn){toast('⚠ Please fill all password fields!');return;}
+  if(nw.length<8){toast('⚠ New password must be at least 8 characters!');return;}
+  if(nw!==cn){toast('❌ Passwords do not match!');return;}
+  document.getElementById('cp-cur').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-con').value='';
+  toast('✓ Password changed successfully!');
+}
+
+function changeAvatar(){
+  toast('📸 Photo upload — Add Firebase Storage to enable!');
+}
+
+function saveSettings(){toast('✓ Settings saved!');}
+
+/* ═══════════════════════════════
+   UPGRADE
+═══════════════════════════════ */
+function upgradePlan(plan){
+  if(!currentUser){showAuth('signup');return;}
+  toast('💳 Payment system coming soon! Plan: '+plan.toUpperCase());
+  showDash('upgrade');
+}
+
+/* ═══════════════════════════════
+   TOOLS
+═══════════════════════════════ */
+function selectTool(el, tool){
+  document.querySelectorAll('.tool-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(!currentUser){
+    setTimeout(()=>showAuth('signup'),300);
+    toast('Please sign in to use this tool!');
+    return;
+  }
+  toast('Opening: '+el.querySelector('.tc-name').textContent);
+}
+
+/* ═══════════════════════════════
+   LANGUAGE
+═══════════════════════════════ */
+function toggleLangDD(){document.getElementById('lang-dd').classList.toggle('open')}
+document.addEventListener('click',e=>{if(!e.target.closest('.lang-wrap'))document.getElementById('lang-dd')?.classList.remove('open')});
+function setLang(code,label,ev){
+  ev.stopPropagation();
+  curLang=code;
+  document.getElementById('cur-lang').textContent=label;
+  document.querySelectorAll('.lopt').forEach(o=>o.classList.remove('sel'));
+  ev.currentTarget.classList.add('sel');
+  document.getElementById('lang-dd').classList.remove('open');
+  toast('Language: '+label);
+}
+
+/* ═══════════════════════════════
+   MODAL / CONFIRM
+═══════════════════════════════ */
+function confirmAction(title, msg, action){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-msg').textContent=msg;
+  document.getElementById('modal-ok').onclick=()=>{closeModal();window[action]&&window[action]();};
+  document.getElementById('modal-bg').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+function deleteAllDocs(){userDocs=[];renderDocs();toast('✓ All documents deleted!');}
+function deleteAccount(){doLogout();toast('Account deleted!');}
+
+/* ═══════════════════════════════
+   UTILS
+═══════════════════════════════ */
+function renderDocs(){
+  document.getElementById('doc-count-badge').textContent = userDocs.length;
+  document.getElementById('st-docs').textContent = userDocs.length;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
